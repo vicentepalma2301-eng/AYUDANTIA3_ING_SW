@@ -75,7 +75,8 @@ Content-Type: application/json
   "stock": 20,
   "sku": "GAM-TEC-001",
   "isAvailable": true,
-  "categoryId": 1
+  "categoryId": 1,
+  "brandId": 1
 }
 
 ### 13. Intentar crear un producto con ERRORES DE VALIDACIÓN ZOD (precio negativo, stock decimal, SKU inválido)
@@ -104,3 +105,89 @@ DELETE {{baseUrl}}/products/4
 
 ### 16. Intentar eliminar una categoría que TIENE productos asociados (Error 400 por restricción de integridad)
 DELETE {{baseUrl}}/categories/1
+
+### 17. Filtrar productos por marca
+GET {{baseUrl}}/products?brandId=1
+
+### =================================================================
+### SECCIÓN 3: MARCAS
+### =================================================================
+
+### 18. Listar todas las marcas (incluye conteo de productos)
+GET {{baseUrl}}/brands
+
+### 19. Obtener una marca por ID (incluye sus productos)
+GET {{baseUrl}}/brands/1
+
+### 20. Crear una nueva marca (ÉXITO - 201 Created)
+POST {{baseUrl}}/brands
+Content-Type: application/json
+
+{
+  "name": "Razer",
+  "country": "Estados Unidos",
+  "website": "https://www.razer.com"
+}
+
+### 21. Intentar crear marca con ERROR DE VALIDACIÓN ZOD (nombre muy corto, URL inválida)
+POST {{baseUrl}}/brands
+Content-Type: application/json
+
+{
+  "name": "A",
+  "website": "not-a-url"
+}
+
+### 22. Intentar crear una marca DUPLICADA (Error 409 Conflicto por @unique en Prisma)
+POST {{baseUrl}}/brands
+Content-Type: application/json
+
+{
+  "name": "Logitech",
+  "country": "Suiza"
+}
+
+### 23. Actualizar una marca
+PUT {{baseUrl}}/brands/1
+Content-Type: application/json
+
+{
+  "country": "Suiza (Confederación Helvética)"
+}
+
+### =================================================================
+### SECCIÓN 4: RESEÑAS
+### =================================================================
+
+### 24. Obtener reseñas de un producto con promedio (averageRating)
+GET {{baseUrl}}/products/1/reviews
+
+### 25. Crear una reseña para un producto (ÉXITO - 201 Created)
+POST {{baseUrl}}/products/1/reviews
+Content-Type: application/json
+
+{
+  "author": "Pedro Fuentes",
+  "rating": 5,
+  "comment": "El producto superó todas mis expectativas, lo recomiendo ampliamente."
+}
+
+### 26. Intentar crear reseña con ERROR DE VALIDACIÓN ZOD (rating fuera de rango, comment muy corto)
+POST {{baseUrl}}/products/1/reviews
+Content-Type: application/json
+
+{
+  "author": "LU",
+  "rating": 10,
+  "comment": "Corto"
+}
+
+### 27. Intentar crear reseña para un producto INEXISTENTE (Error 404)
+POST {{baseUrl}}/products/999/reviews
+Content-Type: application/json
+
+{
+  "author": "Texto Válido",
+  "rating": 4,
+  "comment": "Este es un comentario lo suficientemente largo para la validación."
+}
