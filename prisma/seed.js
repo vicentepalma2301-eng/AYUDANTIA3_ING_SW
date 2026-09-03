@@ -6,7 +6,9 @@ async function main() {
   console.log('🌱 Iniciando carga de datos de prueba (Seed)...');
 
   // Limpiar base de datos previa (orden por restricciones de clave foránea)
+  await prisma.review.deleteMany();
   await prisma.product.deleteMany();
+  await prisma.brand.deleteMany();
   await prisma.category.deleteMany();
 
   // 1. Crear Categorías
@@ -31,7 +33,40 @@ async function main() {
     }
   });
 
-  // 2. Crear Productos asociados
+  // 2. Crear Marcas
+  const logitech = await prisma.brand.create({
+    data: {
+      name: 'Logitech',
+      country: 'Suiza',
+      website: 'https://www.logitech.com'
+    }
+  });
+
+  const apple = await prisma.brand.create({
+    data: {
+      name: 'Apple',
+      country: 'Estados Unidos',
+      website: 'https://www.apple.com'
+    }
+  });
+
+  const sony = await prisma.brand.create({
+    data: {
+      name: 'Sony',
+      country: 'Japón',
+      website: 'https://www.sony.com'
+    }
+  });
+
+  const samsung = await prisma.brand.create({
+    data: {
+      name: 'Samsung',
+      country: 'Corea del Sur',
+      website: 'https://www.samsung.com'
+    }
+  });
+
+  // 3. Crear Productos asociados a categorías y marcas
   const p1 = await prisma.product.create({
     data: {
       name: 'Laptop Gamer Pro 16"',
@@ -40,7 +75,8 @@ async function main() {
       stock: 15,
       sku: 'TECH-LAP-001',
       isAvailable: true,
-      categoryId: electronica.id
+      categoryId: electronica.id,
+      brandId: sony.id
     }
   });
 
@@ -52,7 +88,8 @@ async function main() {
       stock: 50,
       sku: 'TECH-MOU-002',
       isAvailable: true,
-      categoryId: electronica.id
+      categoryId: electronica.id,
+      brandId: logitech.id
     }
   });
 
@@ -64,7 +101,8 @@ async function main() {
       stock: 8,
       sku: 'HOG-SIL-001',
       isAvailable: true,
-      categoryId: hogar.id
+      categoryId: hogar.id,
+      brandId: samsung.id
     }
   });
 
@@ -76,13 +114,46 @@ async function main() {
       stock: 0,
       sku: 'ACC-MOC-001',
       isAvailable: false,
-      categoryId: accesorios.id
+      categoryId: accesorios.id,
+      brandId: apple.id
     }
+  });
+
+  // 4. Crear Reseñas para los productos
+  await prisma.review.createMany({
+    data: [
+      {
+        author: 'Carlos Pérez',
+        rating: 5,
+        comment: 'Excelente laptop, corre todo sin problemas y la batería dura horas.',
+        productId: p1.id
+      },
+      {
+        author: 'María González',
+        rating: 4,
+        comment: 'Muy buena pantalla y rendimiento, aunque es un poco pesada.',
+        productId: p1.id
+      },
+      {
+        author: 'Jorge Silva',
+        rating: 5,
+        comment: 'El mouse es muy cómodo y preciso. La batería dura semanas.',
+        productId: p2.id
+      },
+      {
+        author: 'Ana Torres',
+        rating: 3,
+        comment: 'La silla es cómoda pero el ensamblaje fue complicado.',
+        productId: p3.id
+      }
+    ]
   });
 
   console.log('✅ Base de datos poblada exitosamente:');
   console.log(`- 3 Categorías creadas: [${electronica.name}, ${hogar.name}, ${accesorios.name}]`);
+  console.log(`- 4 Marcas creadas: [${logitech.name}, ${apple.name}, ${sony.name}, ${samsung.name}]`);
   console.log(`- 4 Productos creados: [${p1.name}, ${p2.name}, ${p3.name}, ${p4.name}]`);
+  console.log('- 4 Reseñas creadas para los productos');
 }
 
 main()
